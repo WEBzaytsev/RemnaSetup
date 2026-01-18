@@ -108,8 +108,9 @@ display_remnanode_menu() {
         echo -e "${BLUE}4. IPv6 Management${RESET}"
         echo -e "${BLUE}5. Install BBR only${RESET}"
         echo -e "${BLUE}6. Install WARP-NATIVE (by distillium)${RESET}"
-        echo -e "${BLUE}7. Update Remnanode${RESET}"
-        echo -e "${BLUE}8. Back${RESET}"
+        echo -e "${BLUE}7. Install/Update Geodat (geoip.dat + geosite.dat)${RESET}"
+        echo -e "${BLUE}8. Update Remnanode${RESET}"
+        echo -e "${BLUE}9. Back${RESET}"
     else
         echo -e "${BLUE}1. Полная установка (Remnanode + Caddy + BBR + WARP-NATIVE (by distillium))${RESET}"
         echo -e "${BLUE}2. Только Remnanode${RESET}"
@@ -117,8 +118,9 @@ display_remnanode_menu() {
         echo -e "${BLUE}4. Управление IPv6${RESET}"
         echo -e "${BLUE}5. Только BBR${RESET}"
         echo -e "${BLUE}6. Установить WARP-NATIVE (by distillium)${RESET}"
-        echo -e "${BLUE}7. Обновить Remnanode${RESET}"
-        echo -e "${BLUE}8. Назад${RESET}"
+        echo -e "${BLUE}7. Установить/Обновить Geodat (geoip.dat + geosite.dat)${RESET}"
+        echo -e "${BLUE}8. Обновить Remnanode${RESET}"
+        echo -e "${BLUE}9. Назад${RESET}"
     fi
     echo
     read -p "$(echo -e "${BOLD_CYAN}$(get_string "select_option"):${RESET}") " REMNANODE_OPTION
@@ -211,8 +213,9 @@ main() {
                         4) run_script "${SCRIPT_DIR}/scripts/remnanode/install-ipv6.sh" ;;
                         5) run_script "${SCRIPT_DIR}/scripts/remnanode/install-bbr.sh" ;;
                         6) run_script "${SCRIPT_DIR}/scripts/remnanode/install-warp.sh" ;;
-                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
-                        8) break ;;
+                        7) run_script "${SCRIPT_DIR}/scripts/remnanode/install-geodat.sh" ;;
+                        8) run_script "${SCRIPT_DIR}/scripts/remnanode/update.sh" ;;
+                        9) break ;;
                         *) warn "$(get_string "invalid_choice")" ;;
                     esac
                 done
