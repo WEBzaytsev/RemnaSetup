@@ -34,6 +34,24 @@ install_docker() {
     success "$(get_string "install_node_docker_success")"
 }
 
+setup_geodat() {
+    info "$(get_string "install_node_setup_geodat")"
+    
+    mkdir -p /opt/remnanode/geodat
+    
+    info "$(get_string "install_node_downloading_geoip")"
+    curl -fsSL https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat -o /opt/remnanode/geodat/geoip.dat || {
+        warn "$(get_string "install_node_geoip_failed")"
+    }
+    
+    info "$(get_string "install_node_downloading_geosite")"
+    curl -fsSL https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat -o /opt/remnanode/geodat/geosite.dat || {
+        warn "$(get_string "install_node_geosite_failed")"
+    }
+    
+    success "$(get_string "install_node_geodat_complete")"
+}
+
 setup_logs_and_logrotate() {
     info "$(get_string "install_node_setup_logs")"
 
@@ -110,6 +128,11 @@ install_remnanode() {
     sed -i "s|\$NODE_PORT|$NODE_PORT|g" docker-compose.yml
     sed -i "s|\$SECRET_KEY|$SECRET_KEY|g" docker-compose.yml
 
+    if [[ "$INSTALL_GEODAT" == "y" || "$INSTALL_GEODAT" == "Y" ]]; then
+        sed -i '/\/var\/log\/remnanode/a\      - /opt/remnanode/geodat/geoip.dat:/usr/local/share/xray/geoip.dat' docker-compose.yml
+        sed -i '/geoip.dat/a\      - /opt/remnanode/geodat/geosite.dat:/usr/local/share/xray/geosite.dat' docker-compose.yml
+    fi
+
     docker compose up -d || {
         error "$(get_string "install_node_error")"
         exit 1
@@ -142,6 +165,16 @@ main() {
         warn "$(get_string "install_node_ssl_cert_empty")"
     done
 
+    INSTALL_GEODAT="n"
+    while true; do
+        question "$(get_string "install_node_need_geodat")"
+        INSTALL_GEODAT="$REPLY"
+        if [[ "$INSTALL_GEODAT" == "y" || "$INSTALL_GEODAT" == "Y" || "$INSTALL_GEODAT" == "n" || "$INSTALL_GEODAT" == "N" ]]; then
+            break
+        fi
+        warn "$(get_string "install_node_please_enter_yn")"
+    done
+
     if ! check_docker; then
         install_docker
     fi
@@ -153,6 +186,10 @@ main() {
     fi
 
     setup_logs_and_logrotate
+
+    if [[ "$INSTALL_GEODAT" == "y" || "$INSTALL_GEODAT" == "Y" ]]; then
+        setup_geodat
+    fi
 
     install_remnanode
 
