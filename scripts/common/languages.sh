@@ -920,4 +920,7 @@ get_string() {
     fi
 }
 
-select_language 
+export LANGUAGE
+export LANG_STRINGS
+export -f get_string
+export -f select_language

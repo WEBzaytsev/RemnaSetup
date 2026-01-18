@@ -15,10 +15,22 @@ check_docker() {
 
 install_docker() {
     info "$(get_string "install_node_installing_docker")"
-    curl -fsSL https://get.docker.com | sh || {
+    
+    apt-get update -y
+    apt-get install -y ca-certificates curl gnupg
+    
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+    
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    
+    apt-get update -y
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-buildx-plugin || {
         error "$(get_string "install_node_docker_error")"
         exit 1
     }
+    
     success "$(get_string "install_node_docker_success")"
 }
 
@@ -66,13 +78,12 @@ check_remnanode() {
                 info "$(get_string "install_node_already_installed")"
                 read -n 1 -s -r -p "$(get_string "install_node_press_key")"
                 exit 0
-                return 1
             else
                 warn "$(get_string "install_node_please_enter_yn")"
             fi
         done
     fi
-    return 0
+    return 1
 }
 
 install_remnanode() {
@@ -107,10 +118,9 @@ install_remnanode() {
 }
 
 main() {
+    local REMNANODE_EXISTS=false
     if check_remnanode; then
-        cd /opt/remnanode
-        docker compose down
-        rm -f .env
+        REMNANODE_EXISTS=true
     fi
 
     while true; do
@@ -134,6 +144,12 @@ main() {
 
     if ! check_docker; then
         install_docker
+    fi
+
+    if [ "$REMNANODE_EXISTS" = true ]; then
+        cd /opt/remnanode
+        docker compose down
+        rm -f .env
     fi
 
     setup_logs_and_logrotate
