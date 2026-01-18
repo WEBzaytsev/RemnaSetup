@@ -165,11 +165,11 @@ main() {
         warn "$(get_string "install_node_ssl_cert_empty")"
     done
 
-    INSTALL_GEODAT="n"
     while true; do
         question "$(get_string "install_node_need_geodat")"
         INSTALL_GEODAT="$REPLY"
-        if [[ "$INSTALL_GEODAT" == "y" || "$INSTALL_GEODAT" == "Y" || "$INSTALL_GEODAT" == "n" || "$INSTALL_GEODAT" == "N" ]]; then
+        if [[ "$INSTALL_GEODAT" == "y" || "$INSTALL_GEODAT" == "Y" || "$INSTALL_GEODAT" == "n" || "$INSTALL_GEODAT" == "N" || -z "$INSTALL_GEODAT" ]]; then
+            INSTALL_GEODAT="${INSTALL_GEODAT:-n}"
             break
         fi
         warn "$(get_string "install_node_please_enter_yn")"
